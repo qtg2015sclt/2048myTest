@@ -32,8 +32,10 @@ function getNumberColor(number) {
 function nospace(board) {
   for(var i = 0;i < 4;i++)
     for(var j = 0;j < 4;j++)
+    {
       if(board[i][j] == 0)
         return false;
+    }
   return true;
 }
 function canMoveLeft(board) {
@@ -81,7 +83,9 @@ function noBlockVertical(row1, row2, col, board) {
   return true;
 }
 function nomove(board) {
-  if(canMoveLeft() || canMoveRight() || canMoveUp() || canMoveDown())
+  if(canMoveLeft(board) || canMoveRight(board) || canMoveUp(board) || canMoveDown(board))
+  {
     return false;
+  }
   return true;
 }

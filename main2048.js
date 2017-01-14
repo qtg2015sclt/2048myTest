@@ -1,6 +1,7 @@
 //数据简单，放主逻辑里：
 var board = new Array();
 var score = 0;
+var hasConflicted = new Array();
 
 //程序加载完成后运行的主函数，只做一件事：开始游戏newgame
 $(document).ready(function()
@@ -31,8 +32,12 @@ function init()
   for(var i = 0;i < 4;i++)
   {
     board[i] = new Array();
+    hasConflicted[i] = new Array();
     for(var j = 0;j < 4;j++)
+    {
       board[i][j] = 0;
+      hasConflicted[i][j] = false;
+    }
   }
   updateBoardView();
   score = 0;
@@ -61,6 +66,7 @@ function updateBoardView()
         theNumberCell.css('color', getNumberColor(board[i][j]));
         theNumberCell.text(board[i][j]);
       }
+      hasConflicted[i][j] = false;//每次操作过后要重置碰撞情况
     }
 }
 function generateOneNumber() {
@@ -89,31 +95,35 @@ function generateOneNumber() {
 $(document).keydown(function(event) {
   switch (event.keyCode) {
     case 37://left
+      event.preventDefault();//取消事件的默认动作，以防止按方向键时滑动页面，
       if(moveLeft())
       {
         setTimeout("generateOneNumber()",250);
-        isgameover();
+        setTimeout("isgameover()",300);
       }
       break;
     case 38://up
+      event.preventDefault();
       if(moveUp())
       {
         setTimeout("generateOneNumber()",250);
-        isgameover();
+        setTimeout("isgameover()",300);
       }
       break;
     case 39://right
+      event.preventDefault();
       if(moveRight())
       {
         setTimeout("generateOneNumber()",250);
-        isgameover();
+        setTimeout("isgameover()",300);
       }
       break;
     case 40://down
+      event.preventDefault();
       if(moveDown())
       {
         setTimeout("generateOneNumber()",250);
-        isgameover();
+        setTimeout("isgameover()",300);
       }
       break;
     default://default
@@ -121,13 +131,13 @@ $(document).keydown(function(event) {
   }
 });
 function isgameover() {
-  if(nospace(board) && noMove(board))
+  if(nospace(board) && nomove(board))
   {
     gameover();
   }
 }
 function gameover() {
-  alert("gameover!");
+  alert("Game Over!");
 }
 function moveLeft() {
   if(!canMoveLeft(board))
@@ -149,7 +159,7 @@ function moveLeft() {
             board[i][j] = 0;
             break;//用continue也可以，但是用break更合逻辑
           }
-          else if(board[i][k] == board[i][j] && noBlockHorizontal(i, k, j, board))
+          else if(board[i][k] == board[i][j] && noBlockHorizontal(i, k, j, board) && !hasConflicted[i][k])//相等、中间没有障碍、要移动到的位置没有发生过碰撞
           {
             //move
             showMoveAnimation(i, j, i, k);
@@ -159,6 +169,7 @@ function moveLeft() {
             //add score
             score += board[i][k];
             updateScore(score);
+            hasConflicted[i][k] = true;//发生碰撞了
             break;
           }
         }
@@ -187,7 +198,7 @@ function moveRight() {
             board[i][j] = 0;
             break;//用continue也可以，但是用break更合逻辑
           }
-          else if(board[i][k] == board[i][j] && noBlockHorizontal(i, j, k, board))
+          else if(board[i][k] == board[i][j] && noBlockHorizontal(i, j, k, board) && !hasConflicted[i][k])
           {
             //move
             showMoveAnimation(i, j, i, k);
@@ -197,6 +208,7 @@ function moveRight() {
             //add score
             score += board[i][k];
             updateScore(score);
+            hasConflicted[i][k] = true;
             break;
           }
         }
@@ -225,7 +237,7 @@ function moveUp() {
             board[i][j] = 0;
             break;//用continue也可以，但是用break更合逻辑
           }
-          else if(board[k][j] == board[i][j] && noBlockVertical(k, i, j, board))
+          else if(board[k][j] == board[i][j] && noBlockVertical(k, i, j, board) && !hasConflicted[k][j])
           {
             //move
             showMoveAnimation(i, j, k, j);
@@ -235,6 +247,7 @@ function moveUp() {
             //add score
             score += board[k][j];
             updateScore(score);
+            hasConflicted[k][j] = true;
             break;
           }
         }
@@ -263,7 +276,7 @@ function moveDown() {
             board[i][j] = 0;
             break;//用continue也可以，但是用break更合逻辑
           }
-          else if(board[k][j] == board[i][j] && noBlockVertical(i, k, j, board))
+          else if(board[k][j] == board[i][j] && noBlockVertical(i, k, j, board) && !hasConflicted[k][j])
           {
             //move
             showMoveAnimation(i, j, k, j);
@@ -273,6 +286,7 @@ function moveDown() {
             //add score
             score += board[k][j];
             updateScore(score);
+            hasConflicted[k][j] = true;
             break;
           }
         }
